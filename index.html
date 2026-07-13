@@ -93,8 +93,8 @@
 <!-- Wire-up globals then load the SHARED ENGINE from the CANONICAL ORIGIN (one origin, one deploy upgrades all).
      For this deploy the canonical origin is the org site; production moves to https://cdn.octago.nl/engine/. -->
 <script>
-  window.OCTAGO_COLLECTOR = window.OCTAGO_COLLECTOR || ""; // no collector wired yet -> beacon buffers to localStorage (no errors)
-  window.OCTAGO_KEY = window.OCTAGO_KEY || "";
+  window.OCTAGO_COLLECTOR = "https://octago-collector.nirocr.workers.dev/e"; // the one external collector (Cloudflare Worker)
+  window.OCTAGO_KEY = "octago-pub-1";                                       // public site key (attribution, not auth)
   window.OCTAGO_SLUG = "neon-serpent";
 </script>
 <script src="/beacon.js" crossorigin="anonymous" onerror="window.__engineFail=1"></script>
