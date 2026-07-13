@@ -1,0 +1,13 @@
+{
+  "slug": "neon-serpent",
+  "mechanic": "grid trail-growth survival — steer a lengthening light-trail one cell at a time, absorb glow-nodes to extend, death on crossing your own trail or the wall",
+  "theme": "synthwave dusk grid — a magenta trail carving a cyan neon lattice under VHS bloom",
+  "juice_pack": "crunch-pop",
+  "difficulty_curve": "gentle→spike",
+  "monetization_slots": ["cabinet_banner", "insert_coin_jar", "arcade_pass_gate"],
+  "seo_target": "neon snake grid game unblocked",
+  "art_shader": "grid-glow-v1",
+  "parents": [],
+  "engine_version": "engine.current",
+  "created_confidence": "pre-traffic"
+}

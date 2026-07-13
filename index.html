@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Neon Serpent — a neon snake grid game, unblocked · Octagonal</title>
+<meta name="description" content="Neon Serpent: steer a lengthening light-trail across a synthwave grid, absorb glow-nodes to grow, don't cross your own trail. Free retro browser game, no login, unblocked. Insert coin.">
+<!-- Canonical points at the eventual owned home; harmless while serving from the github.io path. -->
+<link rel="canonical" href="https://octago.nl/neon-serpent">
+<meta name="theme-color" content="#0b0420">
+<!-- OG score-card: a shared ?s=<score>&p=<pid> renders "can you beat it?" (JS rewrites these on share). -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Neon Serpent — can you beat my score?">
+<meta property="og:description" content="A synthwave grid trail-survival game. Eight sides, eight bits, infinite continues.">
+<meta property="og:url" content="https://octago.nl/neon-serpent">
+<meta property="og:image" content="https://octago.nl/neon-serpent/assets/ogcard.svg">
+<meta name="twitter:card" content="summary_large_image">
+<!-- schema.org/VideoGame (SEO surface, CARTRIDGE.md §4) -->
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"VideoGame","name":"Neon Serpent",
+ "genre":["Arcade","Snake","Retro"],"gamePlatform":"Web Browser","applicationCategory":"Game",
+ "operatingSystem":"Any","author":{"@type":"Organization","name":"Octagonal","url":"https://octago.nl"},
+ "url":"https://octago.nl/neon-serpent","inLanguage":"en","isAccessibleForFree":true}
+</script>
+<style>
+  :root{--bg:#0b0420;--bg2:#160a3a;--cyan:#20e6ff;--mag:#ff2fb9;--ink:#e9e6ff;--dim:#8f86c9}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:radial-gradient(120% 90% at 50% 8%,#220f52 0%,var(--bg) 60%,#050213 100%);color:var(--ink);font-family:"Chakra Petch",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;min-height:100%;gap:10px;padding:12px 12px 20px;overflow-x:hidden}
+  .cab{width:min(96vw,560px);display:flex;flex-direction:column;gap:8px}
+  header{display:flex;align-items:baseline;justify-content:space-between;gap:8px;letter-spacing:.06em}
+  h1{font-size:clamp(18px,5vw,26px);margin:0;color:#fff;text-shadow:0 0 8px var(--mag),0 0 22px rgba(255,47,185,.6)}
+  h1 .oct{color:var(--cyan);text-shadow:0 0 8px var(--cyan)}
+  #hud{font-size:13px;color:var(--dim);text-align:right;line-height:1.4}
+  #hud b{color:var(--cyan)}
+  .stage{position:relative;border:2px solid rgba(32,230,255,.35);border-radius:12px;overflow:hidden;box-shadow:0 0 26px rgba(255,47,185,.25),inset 0 0 40px rgba(11,4,32,.9);background:#070225;aspect-ratio:1/1}
+  canvas{display:block;width:100%;height:100%;touch-action:none;image-rendering:pixelated}
+  .scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.16) 2px 3px);mix-blend-mode:multiply;opacity:.5}
+  .overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;background:rgba(7,2,37,.72);backdrop-filter:blur(2px);padding:16px}
+  .overlay.hide{display:none}
+  .blink{animation:blink 1.05s steps(2,start) infinite}
+  @keyframes blink{50%{opacity:.15}}
+  .big{font-size:clamp(20px,6vw,30px);color:#fff;text-shadow:0 0 10px var(--cyan)}
+  .btn{appearance:none;cursor:pointer;font:inherit;letter-spacing:.08em;color:#0b0420;background:linear-gradient(180deg,#3af0ff,#12b6d6);border:0;border-radius:9px;padding:10px 16px;font-weight:700;box-shadow:0 0 16px rgba(32,230,255,.6)}
+  .btn.mag{background:linear-gradient(180deg,#ff6afd,#ff2fb9);color:#fff;box-shadow:0 0 16px rgba(255,47,185,.6)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}
+  .slots{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;font-size:12px;color:var(--dim)}
+  .slot{display:none;border:1px dashed rgba(143,134,201,.4);border-radius:8px;padding:6px 10px}
+  .slot.on{display:inline-flex;gap:6px;align-items:center}
+  a{color:var(--cyan);text-decoration:none}
+  a:hover{text-decoration:underline}
+  footer{width:min(96vw,560px);display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--dim);letter-spacing:.04em}
+  .hint{font-size:12px;color:var(--dim);text-align:center}
+  @media (prefers-reduced-motion: reduce){.scan{display:none}.blink{animation:none}}
+</style>
+</head>
+<body>
+  <div class="cab">
+    <header>
+      <h1>NEON <span class="oct">SERPENT</span></h1>
+      <div id="hud">SCORE <b id="score">0</b><br>BEST <b id="best">0</b> · LEN <b id="len">3</b></div>
+    </header>
+
+    <div class="stage">
+      <canvas id="game" width="480" height="480" aria-label="Neon Serpent game board"></canvas>
+      <div class="scan" aria-hidden="true"></div>
+      <div class="overlay" id="overlay">
+        <div class="big" id="title">NEON SERPENT</div>
+        <div class="hint" id="tag">absorb the glow-nodes · don't cross your trail<br>arrows / WASD · swipe on touch</div>
+        <div class="row">
+          <button class="btn" id="start">▶ INSERT COIN</button>
+        </div>
+        <div class="hint" id="share-wrap" style="display:none">
+          <button class="btn mag" id="share">↗ SHARE / BEAT MY SCORE</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monetization inventory — all behind flags.json, all default per the genome's slot set. -->
+    <div class="slots" id="slots">
+      <span class="slot" id="slot-banner" data-slot="cabinet_banner">▮ cabinet_banner</span>
+      <a class="slot" id="slot-coin" data-slot="insert_coin_jar" href="#" rel="nofollow">◎ Insert Coin (tip)</a>
+      <span class="slot" id="slot-pass" data-slot="arcade_pass_gate">✦ Arcade Pass: ad-free + sync</span>
+    </div>
+    <div class="hint">Eight sides · eight bits · infinite continues.</div>
+  </div>
+
+  <footer>
+    <span>a vibe-coded Cartridge</span>
+    <span><a href="https://octago.nl" id="backlink" rel="noopener">Made with ⯃ Octagonal</a></span>
+  </footer>
+
+<!-- Wire-up globals then load the SHARED ENGINE from the CANONICAL ORIGIN (one origin, one deploy upgrades all).
+     For this deploy the canonical origin is the org site; production moves to https://cdn.octago.nl/engine/. -->
+<script>
+  window.OCTAGO_COLLECTOR = window.OCTAGO_COLLECTOR || ""; // no collector wired yet -> beacon buffers to localStorage (no errors)
+  window.OCTAGO_KEY = window.OCTAGO_KEY || "";
+  window.OCTAGO_SLUG = "neon-serpent";
+</script>
+<script src="https://octago-nl.github.io/beacon.js" crossorigin="anonymous" onerror="window.__engineFail=1"></script>
+<script src="https://octago-nl.github.io/engine.js" crossorigin="anonymous" onerror="window.__engineFail=1"></script>
+<script src="./game.js"></script>
+</body>
+</html>

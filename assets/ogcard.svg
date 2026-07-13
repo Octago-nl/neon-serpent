@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#220f52"/><stop offset="1" stop-color="#070213"/></linearGradient></defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <g fill="none" stroke="#20e6ff" stroke-opacity="0.14">
+    <path d="M0 470 L1200 470 M0 520 L1200 520 M0 580 L1200 580"/>
+    <path d="M300 630 L560 430 M900 630 L640 430 M100 630 L520 430 M1100 630 L680 430"/></g>
+  <text x="80" y="230" font-family="monospace" font-size="92" fill="#fff" font-weight="700">NEON <tspan fill="#20e6ff">SERPENT</tspan></text>
+  <text x="82" y="300" font-family="monospace" font-size="34" fill="#ff2fb9">can you beat my score?</text>
+  <text x="82" y="560" font-family="monospace" font-size="26" fill="#8f86c9">octago.nl/neon-serpent · Made with ⯃ Octagonal</text>
+</svg>
