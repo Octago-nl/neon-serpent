@@ -100,5 +100,34 @@
 <script src="/beacon.js" crossorigin="anonymous" onerror="window.__engineFail=1"></script>
 <script src="/engine.js" crossorigin="anonymous" onerror="window.__engineFail=1"></script>
 <script src="./game.js"></script>
+<!-- on-screen arcade controls for touch/mobile (leverages the origin arcade-controls.js) -->
+<div id="controls" aria-label="arcade controls" style="width:100%;max-width:520px;margin:12px auto 0"></div>
+<script src="/arcade-controls.js" crossorigin="anonymous" onerror="window.__engineFail=1"></script>
+<script>
+/* Bridge the on-screen deck to the game's EXISTING key handlers via synthetic key events
+   (no game-logic changes). D-pad -> arrow keys; action button -> the game's start/action key. */
+(function(){
+  function boot(){
+    var mountEl=document.getElementById("controls");
+    if(!window.ArcadeControls||!mountEl) return;
+    var ACT="Enter";
+    var deck=window.ArcadeControls.mount({mount:mountEl,theme:"synthwave",layout:[
+      {id:"pad",type:"dpad",side:"left",label:"MOVE",keys:{up:["ArrowUp"],down:["ArrowDown"],left:["ArrowLeft"],right:["ArrowRight"]}},
+      {id:"act",type:"button",side:"right",label:"GO",sub:"start/turn",keys:[ACT]}
+    ]});
+    var held={};
+    function fire(t,key){try{window.dispatchEvent(new KeyboardEvent(t,{key:key,code:(key===" "?"Space":key),bubbles:true,cancelable:true}));}catch(e){}}
+    (function loop(){
+      var s=deck.state()||{},p=s.pad||{},want={};
+      if(p.up)want.ArrowUp=1; if(p.down)want.ArrowDown=1; if(p.left)want.ArrowLeft=1; if(p.right)want.ArrowRight=1;
+      if(s.act&&s.act.down)want[ACT]=1;
+      Object.keys(held).forEach(function(k){if(!want[k]){fire("keyup",k);delete held[k];}});
+      Object.keys(want).forEach(function(k){if(!held[k]){fire("keydown",k);held[k]=1;}});
+      requestAnimationFrame(loop);
+    })();
+  }
+  if(document.readyState!=="loading") boot(); else addEventListener("DOMContentLoaded",boot);
+})();
+</script>
 </body>
 </html>
